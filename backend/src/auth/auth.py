@@ -1,9 +1,25 @@
+"""auth.py
+
+This is an authentication module using Auth0 for
+the Flask app: Coffee Shop Full Stack'.
+.
+- Author: Mason Kim (icegom@gmail.com)
+- Start code is provided by Udacity
+
+Example:
+    from .auth.auth import requires_auth
+
+    # Use 'requires_auth" as a decorator function
+    @app.route('/drinks-detail', methods=['GET'])
+    @requires_auth('get:drinks-detail')
+    def retrieve_drinks_detail(payload):
+        pass
+"""
 import json
 from flask import abort, request, _request_ctx_stack
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
-
 
 AUTH0_DOMAIN = 'masonkim32.eu.auth0.com'
 ALGORITHMS = ['RS256']
@@ -11,28 +27,35 @@ API_AUDIENCE = 'coffeeShop'
 
 
 class AuthError(Exception):
-    ''' AuthError Exception
+    """A standardized way to communicate auth failure modes
 
-    A standardized way to communicate auth failure modes
-    '''
+    Arguments::
+        error (dict): code, and description of the error
+        status_code (int): HTTP response status codes
+    """
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-## Auth Header
-'''
-@TODO implement get_token_auth_header() method
-    it should attempt to get the header from the request
-        it should raise an AuthError if no header is present
-    it should attempt to split bearer and the token
-        it should raise an AuthError if the header is malformed
-    return the token part of the header
-'''
 def get_token_auth_header():
-    '''
-    Obtains the access token from the Authorization Header.
-    '''
+    """Obtains the access token from the Authorization Header.
+
+    It should attempt to get the header from the request and split
+    bearer and the token.
+
+    Returns:
+        str: the token part of the header
+
+    Raises:
+        AuthError: [401, authorization_header_missing] Authorization
+                head is expected.
+        AuthError: [401, invalid_header] Authorization head must
+                start with "Bearer".
+        AuthError: [invalid_header] Token not found
+        AuthError: [invalid_header] Authorization header must be
+                bearer token.
+    """
     auth = request.headers.get('Authorization', None)
     if not auth:
         raise AuthError({
@@ -60,21 +83,27 @@ def get_token_auth_header():
         })
 
     token = parts[1]
+    print('Token type: ', type(token))
     return token
 
 
-'''
-@TODO implement check_permissions(permission, payload) method
-    @INPUTS
-        permission: string permission (i.e. 'post:drink')
-        payload: decoded jwt payload
-
-    it should raise an AuthError if permissions are not included in the payload
-        !!NOTE check your RBAC settings in Auth0
-    it should raise an AuthError if the requested permission string is not in the payload permissions array
-    return true otherwise
-'''
 def check_permissions(permission, payload):
+    """Check whether the permissions of logged-in users are valid.
+
+    Arguments:
+        permission (str): permission (i.e. 'post:drink')
+        payload (dict): decoded jwt payload
+
+    Returns:
+        bool: True if permissions are included in the payload and
+            the requested permission is in the array of the payload
+            permissions.
+
+    Raises:
+        AuthError: [400, invalid_claims] Permissions not included
+                in JWT.
+        AuthError: [403, Unauthorized] Permission not found.
+    """
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
@@ -90,34 +119,24 @@ def check_permissions(permission, payload):
     return True
 
 
-'''
-@TODO implement verify_decode_jwt(token) method
-    @INPUTS
-        token: a json web token (string)
-
-    it should be an Auth0 token with key id (kid)
-    it should verify the token using Auth0 /.well-known/jwks.json
-    it should decode the payload from the token
-    it should validate the claims
-    return the decoded payload
-
-    !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-'''
 def verify_decode_jwt(token):
-    """[summary]
+    """Verify jwt token and return decoded payload
 
     Arguments:
-        token {[type]} -- [description]
-
-    Raises:
-        AuthError: [description]
-        AuthError: [description]
-        AuthError: [description]
-        AuthError: [description]
-        AuthError: [description]
+        token (str): a json web token
 
     Returns:
-        [type] -- [description]
+        dict: The decoded payload.
+
+    Raises:
+        AuthError: [401, invalid_header] Authorization malformed.
+        AuthError: [401, token_expired] Token expired.
+        AuthError: [401, invalid_claims] Incorrect claims. Please,
+                check the audience and issuer.
+        AuthError: [400, invalid_header] Unable to parse
+                authentication token.
+        AuthError: [400, invalid_header] Unable to find the
+                appropriate key.
     """
     # GET THE PUBLIC KEY FROM AUTH0
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
@@ -154,7 +173,6 @@ def verify_decode_jwt(token):
                 audience=API_AUDIENCE,
                 issuer='https://' + AUTH0_DOMAIN + '/'
             )
-
             return payload
 
         except jwt.ExpiredSignatureError:
@@ -180,17 +198,19 @@ def verify_decode_jwt(token):
             }, 400)
 
 
-'''
-@TODO implement @requires_auth(permission) decorator method
-    @INPUTS
-        permission: string permission (i.e. 'post:drink')
-
-    it should use the get_token_auth_header method to get the token
-    it should use the verify_decode_jwt method to decode the jwt
-    it should use the check_permissions method validate claims and check the requested permission
-    return the decorator which passes the decoded payload to the decorated method
-'''
 def requires_auth(permission=''):
+    """Implementation of @requires_auth(permission) decorator method
+
+    Get the jwt token and decoded it. Then check if the permission
+    of the token is valid.
+
+    Keyword Arguments:
+        permission (str): permission (i.e. 'post:drink')
+
+    Returns:
+        func: the decorator which passes the decoded payload to
+            the decorated method
+    """
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
