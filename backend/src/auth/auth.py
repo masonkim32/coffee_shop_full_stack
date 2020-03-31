@@ -15,6 +15,7 @@ Example:
     def retrieve_drinks_detail(payload):
         pass
 """
+
 import json
 from flask import abort, request, _request_ctx_stack
 from functools import wraps
