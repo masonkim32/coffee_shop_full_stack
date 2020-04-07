@@ -84,7 +84,7 @@ def get_token_auth_header():
         })
 
     token = parts[1]
-    print('Token type: ', type(token))
+
     return token
 
 

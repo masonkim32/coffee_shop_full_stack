@@ -31,34 +31,34 @@ CORS(app)
 db_drop_and_create_all()
 
 # SAMPLE DRINKS DATA
-# drink = Drink(
-#     title = 'matcha shake',
-#     recipe = '[{"name": "milk", "color": "wheat", "parts": 1}, '
-#         + '{"name": "matcha", "color": "green", "parts": 3}]'
-# )
-# drink.insert()
+drink = Drink(
+    title = 'matcha shake',
+    recipe = '[{"name": "milk", "color": "wheat", "parts": 1}, '
+        + '{"name": "matcha", "color": "green", "parts": 3}]'
+)
+drink.insert()
 
-# drink = Drink(
-#     title = 'flatwhite',
-#     recipe = '[{"name": "milk", "color": "wheat", "parts": 3}, '
-#         + '{"name": "coffee", "color": "brown", "parts": 1}]'
-# )
-# drink.insert()
+drink = Drink(
+    title = 'flatwhite',
+    recipe = '[{"name": "milk", "color": "wheat", "parts": 3}, '
+        + '{"name": "coffee", "color": "brown", "parts": 1}]'
+)
+drink.insert()
 
-# drink = Drink(
-#     title = 'cap',
-#     recipe = '[{"name": "foam", "color": "beige", "parts": 1}, '
-#         + '{"name": "milk", "color": "wheat", "parts": 2}, '
-#         + '{"name": "coffee", "color": "brown", "parts": 1}]'
-# )
-# drink.insert()
+drink = Drink(
+    title = 'cap',
+    recipe = '[{"name": "foam", "color": "beige", "parts": 1}, '
+        + '{"name": "milk", "color": "wheat", "parts": 2}, '
+        + '{"name": "coffee", "color": "brown", "parts": 1}]'
+)
+drink.insert()
 
-# drink = Drink(
-#     title = 'chocolate milk',
-#     recipe = '[{"name": "chocolate", "color": "brown", "parts": 1}, '
-#         + '{"name": "milk", "color": "wheat", "parts": 3}]'
-# )
-# drink.insert()
+drink = Drink(
+    title = 'chocolate milk',
+    recipe = '[{"name": "chocolate", "color": "brown", "parts": 1}, '
+        + '{"name": "milk", "color": "wheat", "parts": 3}]'
+)
+drink.insert()
 
 
 ######################################################################
